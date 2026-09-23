@@ -23,7 +23,7 @@ function MatchCard({ match, onBook }) {
 
         <div className="team">
           <div className="team-logo">
-            {match.team1Code}
+            {match.team1_Code}
           </div>
 
           <h2>{match.team1}</h2>
@@ -35,7 +35,7 @@ function MatchCard({ match, onBook }) {
 
         <div className="team">
           <div className="team-logo">
-            {match.team2Code}
+            {match.team2_Code}
           </div>
 
           <h2>{match.team2}</h2>
