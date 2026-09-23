@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect,useState } from "react";
 import { supabase } from "./supabase";
 
 import Navbar from "./components/Navbar";
@@ -13,82 +13,27 @@ function App() {
 
   // ================= MATCH DATA =================
 
-  const matches = [
+const [matches, setMatches] = useState([]);
+const [loading, setLoading] = useState(true);
+useEffect(() => {
+  const fetchMatches = async () => {
+    const { data, error } = await supabase
+      .from("matches")
+      .select("*")
+      .order("id", { ascending: true });
 
-    {
-      id: 1,
-      team1: "Royal Challengers Bengaluru",
-      team1Code: "RCB",
-      team2: "Chennai Super Kings",
-      team2Code: "CSK",
-      date: "25 March 2026",
-      time: "7:30 PM",
-      venue: "M. Chinnaswamy Stadium",
-      price: 1500
-    },
-
-    {
-      id: 2,
-      team1: "Mumbai Indians",
-      team1Code: "MI",
-      team2: "Kolkata Knight Riders",
-      team2Code: "KKR",
-      date: "27 March 2026",
-      time: "7:30 PM",
-      venue: "Wankhede Stadium",
-      price: 1200
-    },
-
-    {
-      id: 3,
-      team1: "Sunrisers Hyderabad",
-      team1Code: "SRH",
-      team2: "Delhi Capitals",
-      team2Code: "DC",
-      date: "29 March 2026",
-      time: "3:30 PM",
-      venue: "Rajiv Gandhi Stadium",
-      price: 1000
-    },
-
-    {
-      id: 4,
-      team1: "Gujarat Titans",
-      team1Code: "GT",
-      team2: "Rajasthan Royals",
-      team2Code: "RR",
-      date: "31 March 2026",
-      time: "7:30 PM",
-      venue: "Narendra Modi Stadium",
-      price: 1800
-    },
-
-    {
-      id: 5,
-      team1: "Punjab Kings",
-      team1Code: "PBKS",
-      team2: "Lucknow Super Giants",
-      team2Code: "LSG",
-      date: "2 April 2026",
-      time: "7:30 PM",
-      venue: "PCA Stadium",
-      price: 1100
-    },
-
-    {
-      id: 6,
-      team1: "Royal Challengers Bengaluru",
-      team1Code: "RCB",
-      team2: "Mumbai Indians",
-      team2Code: "MI",
-      date: "4 April 2026",
-      time: "7:30 PM",
-      venue: "M. Chinnaswamy Stadium",
-      price: 1600
+    if (error) {
+      console.error("Error fetching matches:", error);
+      setLoading(false);
+      return;
     }
 
-  ];
+    setMatches(data || []);
+    setLoading(false);
+  };
 
+  fetchMatches();
+}, []);
 
   // ================= STATE =================
 
@@ -105,18 +50,12 @@ function App() {
 
   // ================= FILTER MATCHES =================
 
-  const filteredMatches = matches.filter((match) => {
-
-    const searchText = search.toLowerCase();
-
-    return (
-      match.team1.toLowerCase().includes(searchText) ||
-      match.team2.toLowerCase().includes(searchText) ||
-      match.team1Code.toLowerCase().includes(searchText) ||
-      match.team2Code.toLowerCase().includes(searchText)
-    );
-
-  });
+const filteredMatches = matches.filter((match) =>
+  match.team1.toLowerCase().includes(search.toLowerCase()) ||
+  match.team2.toLowerCase().includes(search.toLowerCase()) ||
+  match.team1_code.toLowerCase().includes(search.toLowerCase()) ||
+  match.team2_code.toLowerCase().includes(search.toLowerCase())
+);
 
 
   // ================= EXPLORE MATCHES =================
@@ -202,10 +141,6 @@ function App() {
 
   // ================= CONFIRM BOOKING =================
 
-// ================= CONFIRM BOOKING =================
-
-// ================= CONFIRM BOOKING =================
-
 const confirmBooking = async () => {
 
   if (selectedSeats.length !== ticketCount) {
@@ -217,7 +152,7 @@ const confirmBooking = async () => {
     .from("bookings")
     .insert([
       {
-        name: `${selectedMatch.team1Code} vs ${selectedMatch.team2Code}`,
+        name: `${selectedMatch.team1_code} vs ${selectedMatch.team2_code}`,
         tickets: ticketCount,
         stand: selectedSeats.join(", "),
         venue: selectedMatch.venue
@@ -298,7 +233,11 @@ const confirmBooking = async () => {
 
         <div className="matches-grid">
 
-          {filteredMatches.length > 0 ? (
+          {loading ? (
+            <p className="no-results">
+              Loading matches...
+            </p>
+          ) : filteredMatches.length > 0 ? (
 
             filteredMatches.map((match) => (
 
@@ -360,9 +299,9 @@ const confirmBooking = async () => {
                 {/* TEAMS */}
 
                 <h3>
-                  {selectedMatch.team1Code}
+                  {selectedMatch.team1_code}
                   {" vs "}
-                  {selectedMatch.team2Code}
+                  {selectedMatch.team2_code}
                 </h3>
 
 
@@ -509,9 +448,9 @@ const confirmBooking = async () => {
                 <div className="booking-summary">
 
                   <h3>
-                    {selectedMatch.team1Code}
+                    {selectedMatch.team1_code}
                     {" vs "}
-                    {selectedMatch.team2Code}
+                    {selectedMatch.team2_code}
                   </h3>
 
 
@@ -570,10 +509,11 @@ const confirmBooking = async () => {
 
       {/* FOOTER */}
 
+          {/* FOOTER */}
+
       <Footer />
 
     </div>
-
   );
 }
 
